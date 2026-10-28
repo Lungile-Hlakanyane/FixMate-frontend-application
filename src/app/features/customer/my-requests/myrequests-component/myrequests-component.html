@@ -1,0 +1,476 @@
+<app-navbar></app-navbar>
+<div class="requests-page">
+  <div class="page-container">
+
+    <div class="page-header">
+      <div>
+        <h1>My Requests</h1>
+        <p>Track, manage and review all your service requests.</p>
+      </div>
+     <button class="btn-primary-header" (click)="openCreateModal()">New Request</button>
+    </div>
+
+    <div class="summary-cards">
+      <div class="summary-card">
+        <span class="label">Total </span>
+        <strong>{{ countByStatus.all }}</strong>
+      </div>
+      <div class="summary-card">
+        <span class="label">Pending </span>
+        <strong>{{ countByStatus.pending }}</strong>
+      </div>
+      <div class="summary-card">
+        <span class="label">In Progress </span>
+        <strong class="blue">{{ countByStatus.progress }}</strong>
+      </div>
+      <div class="summary-card">
+        <span class="label">Completed </span>
+        <strong>{{ countByStatus.completed }}</strong>
+      </div>
+    </div>
+
+    <div class="filter-tabs">
+      <button *ngFor="let s of statuses" [class.active]="selectedStatus === s" (click)="selectedStatus = s">
+        {{ s }}
+      </button>
+    </div>
+
+    <div class="requests-list">
+      <div class="request-card" *ngFor="let req of filteredRequests">
+
+        <div class="card-header">
+          <div class="left">
+            <span class="req-id">{{ req.id }}</span>
+            <span class="category-badge">{{ req.category }}</span>
+          </div>
+          <span class="status-badge" [ngClass]="req.status.toLowerCase().replace(' ', '-')">
+            {{ req.status }}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="service-info">
+            <h3>{{ req.serviceTitle }}</h3>
+            <div class="meta-line">
+              <span class="meta">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                {{ req.date }}
+              </span>
+              <span class="meta">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+                {{ req.timeSlot }}
+              </span>
+            </div>
+            <div class="meta-line">
+              <span class="meta">
+                <svg viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                {{ req.address }}
+              </span>
+            </div>
+          </div>
+
+          <div class="pro-divider"></div>
+
+          <div class="pro-info">
+            <div class="avatar">{{ req.professionalInitials }}</div>
+            <div>
+              <span class="pro-label">Professional</span>
+              <strong class="pro-name">{{ req.professionalName }}</strong>
+            </div>
+            <div class="price">R{{ req.price }}</div>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn-ghost" (click)="openDetailsModal(req)">View Details</button>
+          <button class="btn-primary-sm" *ngIf="req.status === 'Pending'">Cancel Request</button>
+          <button class="btn-primary-sm" *ngIf="req.status === 'In Progress'" (click)="openContactModal(req)">Contact Pro</button>
+          <button class="btn-primary-sm" *ngIf="req.status === 'Completed'" (click)="openReviewModal(req)">Leave Review</button>
+          <button class="btn-primary-sm" *ngIf="req.status === 'Completed'" (click)="openPayProModal(req)">Pay Pro</button>
+        </div>
+
+      </div>
+
+      <!-- CONTACT PRO MODAL -->
+<div class="modal-overlay" *ngIf="showContactModal" (click)="closeContactModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="contact-pro-head">
+        <div class="avatar-lg">{{ selectedRequest?.professionalInitials }}</div>
+        <div>
+          <h2>{{ selectedRequest?.professionalName }}</h2>
+          <p>★ {{ proContact.rating }} • {{ proContact.jobs }} jobs • {{ proContact.eta }}</p>
+          <span class="active-dot"><i></i> Active on {{ selectedRequest?.id }}</span>
+        </div>
+      </div>
+      <button class="close-btn" (click)="closeContactModal()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="request-context">
+        <span class="ctx-id">{{ selectedRequest?.id }} • {{ selectedRequest?.serviceTitle }}</span>
+        <span class="ctx-meta">{{ selectedRequest?.date }} • {{ selectedRequest?.timeSlot }}</span>
+      </div>
+
+      <button class="contact-option call" (click)="callPro()">
+        <div class="opt-icon call-bg">
+          <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 3.1 5.2 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 1.7l-1.4 1.4a16 16 0 0 0 6 6l1.4-1.4a2 2 0 0 1 1.7-.6l3.5A2 2 0 0 1 22 16.9z"/></svg>
+        </div>
+        <div class="opt-text">
+          <strong>Call Professional</strong>
+          <span>{{ proContact.phone }}</span>
+        </div>
+        <div class="opt-arrow">›</div>
+      </button>
+
+      <button class="contact-option wa" (click)="whatsappPro()">
+        <div class="opt-icon wa-bg">
+          <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.7 14.8L2 22l5.3-1.4A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3.1.8.8-3-.2-.3A8 8 0 1 1 12 20zm4.6-6.1c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7.9-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7 7 0 0 1-1.3-1.6c-.1-.3 0-.4.1-.5l.4-.4c.1-.1.1-.2.2-.3s0-.2 0-.3-.2-.5-.4-.7c-.1-.2-.2-.2-.4-.2h-.4c-.1 0-.3 0-.5.2s-.5.5-.5 1.2.5 1.4.6 1.5.9 1.5 2.3 2.1c1.4.6 1.4.4 1.6.4s.7-.3.8-.5.1-.4.1-.5-.1-.2-.3-.3z"/></svg>
+        </div>
+        <div class="opt-text">
+          <strong>WhatsApp</strong>
+          <span>Fast response, share location</span>
+        </div>
+        <div class="opt-arrow">›</div>
+      </button>
+
+      <button class="contact-option chat" (click)="openChat()">
+        <div class="opt-icon chat-bg">
+          <svg viewBox="0 0 24 24"><path d="M21 11.5a8.5 8.5 0 0 1-12.7 7.4L3 21l2.1-5.3A8.5 8.5 0 0 1 21 11.5z"/></svg>
+        </div>
+        <div class="opt-text">
+          <strong>In-App Chat</strong>
+          <span>Message with request context</span>
+        </div>
+        <div class="opt-arrow">›</div>
+      </button>
+
+      <p class="safety-note">For your safety, keep all communication inside FixMate until job is completed.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- VIEW DETAILS MODAL -->
+<div class="modal-overlay" *ngIf="showDetailsModal" (click)="closeDetailsModal()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <h2>{{ selectedRequest?.id }}</h2>
+        <p>{{ selectedRequest?.serviceTitle }} • <span class="status-inline" [ngClass]="selectedRequest?.status.toLowerCase().replace(' ', '-')">{{ selectedRequest?.status }}</span></p>
+      </div>
+      <button class="close-btn" (click)="closeDetailsModal()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="tabs-row">
+      <button [class.active]="activeDetailTab === 'overview'" (click)="activeDetailTab = 'overview'">Overview</button>
+      <button [class.active]="activeDetailTab === 'timeline'" (click)="activeDetailTab = 'timeline'">Timeline</button>
+    </div>
+
+    <div class="modal-body" *ngIf="activeDetailTab === 'overview'">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="d-label">Service</span>
+          <strong>{{ selectedRequest?.serviceTitle }}</strong>
+          <span class="d-sub">{{ selectedRequest?.category }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="d-label">Price</span>
+          <strong class="price-lg">R{{ selectedRequest?.price }}</strong>
+          <span class="d-sub">Paid after completion</span>
+        </div>
+      </div>
+
+      <div class="detail-block">
+        <span class="d-label">Schedule & Address</span>
+        <div class="detail-line"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> {{ selectedRequest?.date }} • {{ selectedRequest?.timeSlot }}</div>
+        <div class="detail-line"><svg viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> {{ selectedRequest?.address }}</div>
+      </div>
+
+      <div class="detail-block" *ngIf="selectedRequest?.status!== 'Pending'">
+        <span class="d-label">Professional</span>
+        <div class="pro-row">
+          <div class="avatar">{{ selectedRequest?.professionalInitials }}</div>
+          <div><strong>{{ selectedRequest?.professionalName }}</strong><span>★ {{ proContact.rating }} • {{ proContact.jobs }} jobs</span></div>
+          <span class="price-chip">R{{ selectedRequest?.price }}/hr</span>
+        </div>
+      </div>
+      <div class="detail-block pending-block" *ngIf="selectedRequest?.status === 'Pending'">
+        <div class="pulse-dot"></div>
+        <span>Finding best professionals near you... average response 3 mins</span>
+      </div>
+    </div>
+
+    <div class="modal-body" *ngIf="activeDetailTab === 'timeline'">
+      <div class="timeline">
+        <div class="t-item" *ngFor="let t of getTimeline()" [class.done]="t.done">
+          <div class="t-dot"></div>
+          <div class="t-content"><strong>{{ t.label }}</strong><span>{{ t.time }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer space-between">
+      <button class="btn-ghost-lg" (click)="closeDetailsModal()">Close</button>
+      <button class="btn-primary-lg" *ngIf="selectedRequest?.status === 'In Progress'" (click)="contactFromDetails()">Contact Pro</button>
+      <button class="btn-primary-lg" *ngIf="selectedRequest?.status === 'Pending'" (click)="closeDetailsModal()">Cancel Request</button>
+      <button class="btn-primary-lg" *ngIf="selectedRequest?.status === 'Completed'">Leave Review</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- LEAVE REVIEW MODAL -->
+<div class="modal-overlay" *ngIf="showReviewModal" (click)="closeReviewModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <h2>Leave a Review</h2>
+        <p>How was {{ selectedRequest?.serviceTitle }} by {{ selectedRequest?.professionalName }}?</p>
+      </div>
+      <button class="close-btn" (click)="closeReviewModal()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body review-body">
+
+      <div class="pro-summary">
+        <div class="avatar">{{ selectedRequest?.professionalInitials }}</div>
+        <div>
+          <strong>{{ selectedRequest?.professionalName }}</strong>
+          <span>{{ selectedRequest?.id }} • R{{ selectedRequest?.price }}</span>
+        </div>
+      </div>
+
+      <div class="rating-section">
+        <span class="d-label">Rate your experience</span>
+        <div class="stars">
+          <button *ngFor="let star of [1,2,3,4,5]"
+                  class="star-btn"
+                  [class.active]="(hoverRating || reviewRating) >= star"
+                  (mouseenter)="hoverRating = star"
+                  (mouseleave)="hoverRating = 0"
+                  (click)="setRating(star)">
+            <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+          </button>
+        </div>
+        <span class="rating-text" *ngIf="reviewRating > 0">
+          {{ reviewRating === 5? 'Excellent!' : reviewRating === 4? 'Great!' : reviewRating === 3? 'Good' : reviewRating === 2? 'Fair' : 'Poor' }}
+        </span>
+      </div>
+
+      <div class="tags-section">
+        <span class="d-label">What was good? (max 4)</span>
+        <div class="tags">
+          <button *ngFor="let tag of reviewTags"
+                  class="tag"
+                  [class.selected]="selectedTags.includes(tag)"
+                  (click)="toggleTag(tag)">
+            {{ tag }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <span class="d-label">Comment <span class="optional">optional</span></span>
+        <textarea [(ngModel)]="reviewComment" rows="3" placeholder="e.g. Thabo was professional, fixed wiring quickly and cleaned up after..."></textarea>
+        <span class="char-count">{{ reviewComment.length }}/200</span>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost-lg" (click)="closeReviewModal()">Skip</button>
+      <button class="btn-primary-lg"
+              [disabled]="reviewRating === 0 || isSubmittingReview"
+              (click)="submitReview()">
+        <span *ngIf="!isSubmittingReview">Submit Review</span>
+        <span *ngIf="isSubmittingReview" class="loader"></span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+      <div class="empty" *ngIf="filteredRequests.length === 0">
+        <div class="empty-box">--</div>
+        <h3>No requests found</h3>
+        <p>No requests in {{ selectedStatus }} status.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- CREATE REQUEST MODAL -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <h2>New Service Request </h2>
+        <p>Tell us what you need fixed</p>
+      </div>
+      <button class="close-btn" (click)="closeCreateModal()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <span class="d-label">Title</span>
+        <input [(ngModel)]="form.title" placeholder="e.g. Leaking kitchen tap" class="form-input"/>
+      </div>
+
+      <div class="form-group">
+        <span class="d-label">Category</span>
+        <select [(ngModel)]="form.category" class="form-input">
+          <option *ngFor="let c of categories" [value]="c">{{c}}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <span class="d-label">Description</span>
+        <textarea [(ngModel)]="form.description" rows="3" placeholder="Describe the issue..." class="form-input"></textarea>
+      </div>
+
+      <div class="form-group">
+        <span class="d-label">Location</span>
+        <input [(ngModel)]="form.location" placeholder="e.g. 12 Park Ave, Bloemfontein" class="form-input"/>
+      </div>
+
+      <div class="detail-grid">
+
+        <div class="form-group">
+          <span class="d-label">Date & Time</span>
+          <input type="datetime-local" [(ngModel)]="form.scheduledDate" class="form-input"/>
+        </div>
+
+        <div class="form-group">
+          <span class="d-label">Budget (R)</span>
+          <input type="number" [(ngModel)]="form.budget" class="form-input"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <span class="d-label">Urgency</span>
+        <select [(ngModel)]="form.urgency" class="form-input">
+          <option *ngFor="let u of urgencies" [value]="u">{{u}}</option>
+        </select>
+      </div>
+      
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost-lg" (click)="closeCreateModal()">Cancel</button>
+      <button class="btn-primary-lg" [disabled]="isCreating" (click)="onSubmitCreate()">
+        <span *ngIf="!isCreating">Create Request</span>
+        <span *ngIf="isCreating" class="loader"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- PAY PRO MODAL -->
+ <!-- PAY PRO MODAL -->
+<div class="modal-overlay" *ngIf="showPayProModal" (click)="closePayProModal()">
+  <div class="modal pay-modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div>
+        <h2>Pay Pro</h2>
+        <p class="sub">Request {{ selectedRequest?.id }} • R{{ selectedRequest?.price }}</p>
+      </div>
+      <button class="close-btn" (click)="closePayProModal()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="pay-option-list">
+        <div class="pro-summary-mini">
+          <div class="avatar-lg">{{ selectedRequest?.professionalInitials }}</div>
+          <div>
+            <strong>{{ selectedRequest?.professionalName }}</strong>
+            <span>{{ selectedRequest?.serviceTitle }}</span>
+          </div>
+          <div class="amount">R{{ selectedRequest?.price }}</div>
+        </div>
+
+        <!-- PAYMENT METHOD SELECTOR -->
+        <div class="payment-methods">
+          <button class="method-card" [class.active]="paymentMethod === 'cash'" (click)="selectPaymentMethod('cash')">
+            <div class="method-icon">💵</div>
+            <div class="method-info">
+              <strong>Pay with Cash</strong>
+              <span>Pay directly to pro on site</span>
+            </div>
+            <div class="radio"><i *ngIf="paymentMethod === 'cash'"></i></div>
+          </button>
+
+          <button class="method-card" [class.active]="paymentMethod === 'card'" (click)="selectPaymentMethod('card')">
+            <div class="method-icon">💳</div>
+            <div class="method-info">
+              <strong>Pay with Card</strong>
+              <span>Secure card payment</span>
+            </div>
+            <div class="radio"><i *ngIf="paymentMethod === 'card'"></i></div>
+          </button>
+        </div>
+
+        <!-- CARD SECTION - ONLY IF CARD SELECTED -->
+        <div *ngIf="paymentMethod === 'card'" class="card-section">
+
+          <div class="section-label">
+            <span>Saved Cards</span>
+            <button class="link-btn" (click)="toggleAddCardForm()">{{ showAddCardForm ? 'Cancel' : '+ Add Card' }}</button>
+          </div>
+
+          <!-- Saved Cards List -->
+          <div *ngIf="!showAddCardForm" class="saved-cards">
+            <div *ngFor="let card of savedCards" class="saved-card-item" [class.selected]="selectedCardId === card.id" (click)="selectCard(card.id)">
+              <div class="card-brand">{{ card.brand }}</div>
+              <div class="card-info">•••• {{ card.last4 }} • {{ card.exp }}</div>
+              <div class="card-holder">{{ card.name }}</div>
+              <div class="check" *ngIf="selectedCardId === card.id">✓</div>
+            </div>
+            <div *ngIf="savedCards.length === 0" class="empty">No saved cards</div>
+          </div>
+
+          <!-- Add New Card Form -->
+          <div *ngIf="showAddCardForm" class="add-card-form">
+            <input type="text" placeholder="Cardholder Name" [(ngModel)]="newCard.holderName" />
+            <input type="text" placeholder="Card Number 4242 4242 4242 4242" [(ngModel)]="newCard.cardNumber" maxlength="19" />
+            <div class="row-2">
+              <input type="text" placeholder="MM/YY" [(ngModel)]="newCard.expiry" maxlength="5" />
+              <input type="text" placeholder="CVC" [(ngModel)]="newCard.cvc" maxlength="4" />
+            </div>
+            <button class="btn-secondary" (click)="saveNewCard()">Save Card</button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" (click)="closePayProModal()">Cancel</button>
+      <button class="btn-primary-sm" (click)="proceedWithPayment()" [disabled]="isProcessingPayment">
+        {{ isProcessingPayment ? 'Processing...' : (paymentMethod === 'cash' ? 'Confirm Cash Payment' : 'Proceed with Payment') }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<app-footer></app-footer>

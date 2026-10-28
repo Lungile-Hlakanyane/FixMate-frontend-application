@@ -1,0 +1,89 @@
+<app-navbar></app-navbar>
+<div class="pro-page">
+  <div class="pro-container">
+    
+    <div class="page-header">
+      <div>
+        <h1>Welcome back, Pro</h1>
+        <p>Here is what's happening with your jobs today.</p>
+      </div>
+      <div class="header-actions">
+        <span class="status-badge"><span class="dot"></span> Available for jobs</span>
+        <a (click)="goTo('/pro-requests')" class="btn-primary">View requests</a>
+      </div>
+    </div>
+
+ <div class="stats-grid">
+  <div class="stat-card" *ngFor="let s of stats" [attr.data-color]="s.color" [class.clickable]="s.router" (click)="goTo(s.router)">
+    <div class="stat-top">
+      <div class="stat-icon">
+        <svg *ngIf="s.icon === 'jobs'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <svg *ngIf="s.icon === 'check'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 0 0-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+        <svg *ngIf="s.icon === 'wallet'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <svg *ngIf="s.icon === 'star'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <span class="stat-sub">{{ s.sub }}</span>
+    </div>
+    <div class="stat-value">{{ s.value }}</div>
+    <div class="stat-label">{{ s.label }}</div>
+  </div>
+</div>
+
+    <div class="dashboard-grid">
+      <div class="card upcoming-card">
+        <div class="card-header">
+          <h3>Recent Jobs</h3>
+          <a (click)="goTo('/my-jobs')" class="view-all">View all</a>
+        </div>
+        <div class="jobs-list">
+          <div class="job-row" *ngFor="let job of proJobs">
+            <div class="job-info">
+              <div class="job-id">JOB-{{ job.id }}</div>
+              <div class="job-title">{{ job.title }}</div>
+              <div class="job-customer">{{ job.customerName }} • {{ job.scheduledDate }}</div>
+              <div class="job-address">{{ job.location }}</div>
+            </div>
+            <div class="job-meta">
+              <span class="amount">R{{ job.budget }}</span>
+              <span class="status" [class.pending]="job.status === 'pending'">{{ job.status }}</span>
+              <button class="btn-small">Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-stack">
+        <div class="card">
+          <div class="card-header"><h3>Earnings Overview</h3></div>
+          <div class="earnings-box">
+            <div class="earnings-main">
+              <span class="label">Total earned</span>
+              <span class="value">R45,320</span>
+              <span class="growth">+12% from last month</span>
+            </div>
+            <div class="earnings-bars">
+              <div class="bar-row"><span>Mon</span><div class="bar"><span style="width:60%"></span></div><span>R450</span></div>
+              <div class="bar-row"><span>Tue</span><div class="bar"><span style="width:85%"></span></div><span>R800</span></div>
+              <div class="bar-row"><span>Wed</span><div class="bar"><span style="width:40%"></span></div><span>R300</span></div>
+              <div class="bar-row"><span>Thu</span><div class="bar"><span style="width:95%"></span></div><span>R1,200</span></div>
+              <div class="bar-row"><span>Fri</span><div class="bar"><span style="width:70%"></span></div><span>R650</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>Recent Activity</h3></div>
+          <div class="activity-list">
+            <div class="activity-item" *ngFor="let a of recentActivity">
+              <div class="activity-dot"></div>
+              <div><div class="activity-text">{{ a.text }}</div><div class="activity-detail">{{ a.detail }}</div></div>
+              <span class="activity-time">{{ a.time }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<app-footer></app-footer>

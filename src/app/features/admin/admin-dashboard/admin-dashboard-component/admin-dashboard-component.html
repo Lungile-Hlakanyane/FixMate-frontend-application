@@ -1,0 +1,33 @@
+<app-navbar></app-navbar>
+<div class="admin-page" style="padding:40px;">
+  <div class="page-head"><h1>Dashboard</h1><p>Overview of platform activity</p></div>
+  
+  <div class="stats-grid" (click)="navigate('users')">
+  <div class="stat" *ngFor="let s of stats" [attr.data-color]="s.color">
+    <span class="label">{{ s.label }}</span>
+    <span class="value">
+      <!-- USE THE OBSERVABLE HERE -->
+      <ng-container *ngIf="totalUsers$ | async as total; else loadingUsers">
+        {{ total | number }}
+      </ng-container>
+      <ng-template #loadingUsers>...</ng-template>
+    </span>
+    <span class="sub">{{ s.sub }}</span>
+  </div>
+</div>
+
+  <div class="card">
+    <div class="card-head"><h3>Recent Jobs</h3><button class="link" (click)="navigate('/manage-jobs')">View all</button></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Customer</th><th>Pro</th><th>Service</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let j of recentJobs">
+            <td class="mono">{{ j.id }}</td><td>{{ j.customer }}</td><td>{{ j.pro }}</td><td>{{ j.service }}</td><td class="bold">{{ j.amount }}</td><td><span class="status" [attr.data-status]="j.status">{{ j.status }}</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

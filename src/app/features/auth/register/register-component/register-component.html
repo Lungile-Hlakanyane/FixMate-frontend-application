@@ -1,0 +1,127 @@
+<div class="register-page">
+  <div class="register-container">
+
+    <!-- Left - Branding (hidden on mobile) -->
+    <div class="brand-side">
+      <div class="brand-content">
+        <div class="logo">FixMate</div>
+        <h1>Join thousands fixing things faster.</h1>
+        <p>Create your account and get connected to trusted professionals in minutes.</p>
+        <div class="stats">
+          <div><strong>5k+</strong><span>Professionals</span></div>
+          <div><strong>12k+</strong><span>Jobs Completed</span></div>
+          <div><strong>4.9</strong><span>Average Rating</span></div>
+        </div>
+      </div>
+      <div class="brand-circle circle-1"></div>
+      <div class="brand-circle circle-2"></div>
+    </div>
+
+    <!-- Right - Form -->
+    <div class="form-side">
+      <div class="form-wrapper">
+
+        <div class="mobile-logo">
+          <div class="logo-icon">F</div>
+          <span>FixMate</span>
+        </div>
+
+        <div class="form-header">
+          <h2>Create account</h2>
+          <p>Start your journey with FixMate today</p>
+        </div>
+
+        <div class="role-toggle">
+          <button type="button" [class.active]="form.role === 'client'" (click)="form.role = 'client'">I'm a Client</button>
+          <button type="button" [class.active]="form.role === 'professional'" (click)="form.role = 'professional'">I'm a Pro</button>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" class="register-form">
+
+  <div class="form-group">
+    <label>Full Name *</label>
+    <div class="input-wrap">
+      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+      <input type="text" placeholder="John Doe" [(ngModel)]="form.fullName" name="fullName" required>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Email Address *</label>
+    <div class="input-wrap">
+      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="m4 7 8 6 8-6"/></svg>
+      <input type="email" placeholder="you@example.com" [(ngModel)]="form.email" name="email" required>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Phone Number *</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0.7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <input type="tel" placeholder="+27 82 123 4567" [(ngModel)]="form.phone" name="phone" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Location *</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <input type="text" placeholder="Johannesburg, Gauteng" [(ngModel)]="form.location" name="location" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>ID Number (Optional for verification)</label>
+    <div class="input-wrap">
+      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h10M7 16h10"/></svg>
+      <input type="text" placeholder="e.g. 9001015800083" [(ngModel)]="form.idNumber" name="idNumber">
+    </div>
+  </div>
+
+  <div class="role-toggle">
+    <button type="button" [class.active]="form.role === 'CUSTOMER'" (click)="form.role = 'CUSTOMER'">I'm a Client</button>
+    <button type="button" [class.active]="form.role === 'PRO'" (click)="form.role = 'PRO'">I'm a Pro</button>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Password *</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input [type]="showPassword? 'text' : 'password'" placeholder="Min. 8 characters" [(ngModel)]="form.password" name="password" required>
+        <button type="button" class="eye-btn" (click)="togglePassword()">...</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Confirm Password *</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input [type]="showConfirmPassword? 'text' : 'password'" placeholder="Confirm password" [(ngModel)]="form.confirmPassword" name="confirmPassword" required>
+        <button type="button" class="eye-btn" (click)="toggleConfirmPassword()">...</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-check">
+    <label class="checkbox-label">
+      <input type="checkbox" [(ngModel)]="form.agreeTerms" name="agreeTerms" required>
+      <span>I agree to the <a routerLink="/terms">Terms</a> and <a routerLink="/privacy">Privacy Policy</a></span>
+    </label>
+  </div>
+
+  <button type="submit" class="btn-primary" [disabled]="isLoading ||!form.agreeTerms">
+    <span *ngIf="!isLoading">Create Account</span>
+    <span *ngIf="isLoading" class="loader"></span>
+  </button>
+
+  <p class="login-link">Already have an account? <a (click)="navigate('/login')">Log in</a></p>
+</form>
+
+      </div>
+    </div>
+
+  </div>
+</div>

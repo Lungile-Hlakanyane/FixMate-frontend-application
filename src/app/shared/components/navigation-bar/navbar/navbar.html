@@ -1,0 +1,264 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <a class="brand" (click)="navigate('/home')">
+      <div class="brand-mark"><span></span><span></span><span></span></div>
+      <span class="brand-name">Fix<span>Mate</span></span>
+    </a>
+
+    <!-- DESKTOP NAV - ROLE BASED -->
+    <div class="desktop-nav" *ngIf="!isAuthPage">
+
+      <!-- CUSTOMER LINKS -->
+      <ng-container *ngIf="isCustomer">
+        <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+        <a routerLink="/services" routerLinkActive="active">Services</a>
+        <a routerLink="/my-requests" routerLinkActive="active">My Requests</a>
+        <a routerLink="/profesionals" routerLinkActive="active">Professionals</a>
+      </ng-container>
+
+      <!-- PRO LINKS -->
+      <ng-container *ngIf="isPro">
+        <a routerLink="/pro-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+        <a routerLink="/pro-requests" routerLinkActive="active">All Requests</a>
+        <a routerLink="/my-jobs" routerLinkActive="active">My Jobs</a>
+        <a routerLink="/earnings" routerLinkActive="active">Earnings</a>
+      </ng-container>
+
+      <!-- ADMIN LINKS -->
+      <ng-container *ngIf="isAdmin">
+        <a routerLink="/admin-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Dashboard</a>
+        <a routerLink="/users" routerLinkActive="active">Users</a>
+        <a routerLink="/manage-jobs" routerLinkActive="active">Jobs</a>
+        <a routerLink="/admin-requests" routerLinkActive="active">Requests</a>
+        <a routerLink="/admin-payouts" routerLinkActive="active">Payouts</a>
+        <a routerLink="/admin-service" routerLinkActive="active">Services</a>
+      </ng-container>
+
+    </div>
+
+    <div class="navbar-actions" *ngIf="!isAuthPage">
+      <button type="button" class="notification-button">
+        <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+        <span class="notification-dot"></span>
+      </button>
+      <div class="nav-divider"></div>
+
+      <div class="profile-wrapper">
+        <button type="button" class="profile-button" (click)="toggleProfile($event)">
+          <div class="profile-avatar" [class.admin]="isAdmin">{{ isAdmin? 'AD' : isPro? 'PR' : 'LV' }}</div>
+          <div class="profile-info">
+            <span class="profile-name">Welcome back</span>
+            <span class="profile-role">{{ roleLabel }}</span>
+          </div>
+          <svg class="profile-chevron" viewBox="0 0 24 24" [class.rotated]="profileOpen"><path d="M6 9l6 6 6-6"></path></svg>
+        </button>
+
+        <div class="profile-dropdown" *ngIf="profileOpen">
+          <div class="dropdown-header">
+            <div class="profile-avatar" [class.admin]="isAdmin">{{ isAdmin? 'AD' : isPro? 'PR' : 'LV' }}</div>
+            <div class="header-text">
+              <strong>{{ isAdmin? 'Admin Account' : isPro? 'Pro Account' : 'Luis Van' }}</strong>
+              <span>{{ userEmail || 'admin@fixmate.co.za' }}</span>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+
+          <!-- Customer only -->
+          <button *ngIf="isCustomer" type="button" class="dropdown-item" routerLink="/my-requests">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18H6z"></path><path d="M9 7h6"></path></svg>
+            My Requests
+          </button>
+
+          <!-- Pro only -->
+          <button *ngIf="isPro" type="button" class="dropdown-item" routerLink="/my-jobs">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/></svg>
+            My Jobs
+          </button>
+
+          <!-- Admin only -->
+          <ng-container *ngIf="isAdmin">
+            <button type="button" class="dropdown-item" routerLink="/users">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+              Manage Users
+            </button>
+            <button type="button" class="dropdown-item" routerLink="/manage-jobs">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              Manage Jobs
+            </button>
+            <button type="button" class="dropdown-item" routerLink="/admin-payouts">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Payouts
+            </button>
+          </ng-container>
+
+          <button type="button" class="dropdown-item" (click)="onProfileModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0.33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 9 15a1.65 1.65 0 0 0-1-1.51V13a2 2 0 0 1 4 0v.49a2 2 0 0 0 2.66 0V13a2 2 0 0 1 4 0v.49"/></svg>
+            Profile
+          </button>
+
+          <button type="button" class="dropdown-item logout" (click)="onLogout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button class="mobile-menu-button" type="button" (click)="toggleMenu()">
+      <span [class.open]="menuOpen"></span>
+      <span [class.open]="menuOpen"></span>
+      <span [class.open]="menuOpen"></span>
+    </button>
+  </div>
+
+  <!-- MOBILE NAV - ROLE BASED -->
+  <div class="mobile-nav" [class.open]="menuOpen">
+    <div class="mobile-nav-links">
+
+      <ng-container *ngIf="isCustomer">
+        <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg></span>Home</a>
+        <a routerLink="/services" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></span>Services</a>
+        <a routerLink="/my-requests" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z"></path></svg></span>My Requests</a>
+        <a routerLink="/professionals" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"></path></svg></span>Professionals</a>
+      </ng-container>
+
+      <ng-container *ngIf="isPro">
+        <a routerLink="/pro-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg></span>Dashboard</a>
+        <a routerLink="/my-jobs" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z"></path></svg></span>My Jobs</a>
+        <a routerLink="/earnings" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span>Earnings</a>
+      </ng-container>
+
+      <ng-container *ngIf="isAdmin">
+        <a routerLink="/admin-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"/></svg></span>Dashboard</a>
+        <a routerLink="/users" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></span>Users</a>
+        <a routerLink="/manage-jobs" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><path d="M6 3h12v18H6z"/></svg></span>Jobs</a>
+        <a routerLink="/admin/requests" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>Requests</a>
+        <a routerLink="/admin-payouts" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/></svg></span>Payouts</a>
+        <a routerLink="/admin-services" routerLinkActive="active" (click)="closeMenu()"><span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>Services</a>
+      </ng-container>
+
+    </div>
+    <div class="mobile-nav-footer">
+      <div class="mobile-profile"><div class="profile-avatar" [class.admin]="isAdmin">{{ isAdmin? 'AD' : isPro? 'PR' : 'LV' }}</div><div><strong>Welcome back</strong><span>{{ roleLabel }} • {{ userEmail }}</span></div></div>
+      <button type="button" class="mobile-notifications" (click)="closeMenu()">Notifications <span class="mobile-notification-count">2</span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="logout-overlay" *ngIf="showLogoutModal" (click)="!isLoggingOut && cancelLogout()">
+
+  <div class="logout-modal" (click)="$event.stopPropagation()">
+    <div class="logout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+    <h3>Log out?</h3>
+    <p>Are you sure you want to log out? You will need to sign in again to access your account.</p>
+    <div class="logout-actions">
+      <button type="button" class="btn-cancel" (click)="cancelLogout()" [disabled]="isLoggingOut">Cancel</button>
+      <button type="button" class="btn-confirm" (click)="confirmLogout()" [disabled]="isLoggingOut"><span *ngIf="!isLoggingOut">Yes, log out</span><span *ngIf="isLoggingOut" class="btn-loader"></span></button>
+    </div>
+  </div>
+
+</div>
+
+<div class="profile-modal-overlay" *ngIf="showProfileModal" (click)="closeProfileModal()">
+
+  <div class="logout-modal" (click)="$event.stopPropagation()">
+    <div class="logout-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+    </div>
+    <h3>Profile</h3>
+    <p>You can edit your details here.</p>
+
+    <form [formGroup]="profileDataForm" *ngIf="profileDataForm" (ngSubmit)="saveDetails()">
+
+    <div class="form-group">
+     <label>Full Name</label>
+     <div class="input-wrap">
+      <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+      <input type="text" placeholder="" name="fullName" formControlName="fullName">
+      </div>
+    </div>
+
+    <div class="form-row">
+     <div class="form-group">
+      <label>Phone Number</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0.7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <input type="tel" placeholder="" name="phone" formControlName="phone">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Location</label>
+      <div class="input-wrap">
+        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <input type="text" placeholder="" name="location" formControlName="location">
+      </div>
+    </div>
+
+<!-- Pro only -->
+<div class="form-group" *ngIf="isPro">
+  <label>Occupation</label>
+  <div class="input-wrap">
+    <!-- Occupation / Briefcase Icon -->
+    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+    </svg>
+    <input type="text" placeholder="e.g. Plumber" name="occupation" formControlName="occupation">
+  </div>
+</div>
+
+<!-- Pro only -->
+<div class="form-group" *ngIf="isPro">
+  <label>Available</label>
+  <div class="input-wrap">
+    <!-- Availability / Power Toggle Icon -->
+    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 2v8"/>
+      <path d="M4.93 10a8 8 0 1 0 14.14 0"/>
+    </svg>
+    <select name="available" class="modern-select" formControlName="available">
+      <option value="" disabled selected></option>
+      <option value="true">On</option>
+      <option value="false">Off</option>
+    </select>
+    <!-- Dropdown chevron -->
+    <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+</div>
+    
+  </div>
+
+
+  <!-- Pro only -->
+  <div class="form-group bio-group" *ngIf="isPro">
+  <label for="bio">About You</label>
+  <div class="textarea-wrap">
+    <div class="textarea-icon">
+      <!-- Modern bio / notes icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M8 6h8M8 10h8M8 14h5"/>
+        <path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H13a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5.5A2.5 2.5 0 0 1 3 18.5v-13z"/>
+      </svg>
+    </div>
+    <textarea 
+      id="bio"
+      formControlName="biography"
+      placeholder="Tell clients about your experience, skills and what makes you stand out..."
+      rows="4"
+      maxlength="300"
+      #bioInput
+    ></textarea>
+    <span class="char-count">{{ bioInput.value.length || 0 }}/300</span>
+  </div>
+</div>
+
+  <div class="logout-actions">
+    <button type="button" class="btn-cancel" (click)="closeProfileModal()">Cancel</button>
+    <button type="button" class="btn-confirm" type="submit"><span>Save</span><span *ngIf="isLoggingOut" class="btn-loader"></span></button>
+  </div>
+
+   </form>
+  </div>
+
+</div>

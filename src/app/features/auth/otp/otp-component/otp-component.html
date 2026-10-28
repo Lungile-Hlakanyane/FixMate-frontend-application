@@ -1,0 +1,88 @@
+<div class="otp-page">
+  <div class="otp-container">
+
+    <!-- Left Branding -->
+    <div class="brand-side">
+      <div class="brand-content">
+        <div class="logo">FixMate</div>
+        <h1>Check your email</h1>
+        <p>We have sent a verification code to your email. The code expires in 10 minutes.</p>
+        <div class="email-preview">
+          <div class="email-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="m4 7 8 6 8-6"/></svg>
+          </div>
+          <div>
+            <span>Code sent to</span>
+            <strong>{{ userEmail }}</strong>
+          </div>
+        </div>
+      </div>
+      <div class="brand-circle circle-1"></div>
+      <div class="brand-circle circle-2"></div>
+    </div>
+
+    <!-- Right Form -->
+    <div class="form-side">
+      <div class="form-wrapper">
+
+        <div class="mobile-logo">
+          <div class="logo-icon">F</div>
+          <span>FixMate</span>
+        </div>
+
+        <div class="icon-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="m4 7 8 6 8-6"/></svg>
+        </div>
+
+        <div class="form-header">
+          <h2>Enter verification code</h2>
+          <p>We sent a 6-digit code to <strong>{{ userEmail }}</strong></p>
+        </div>
+
+        <div class="otp-inputs" (paste)="onPaste($event)">
+          <input
+            *ngFor="let digit of otp; let i = index"
+            #otpInput
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            [value]="otp[i]"
+            (input)="onInput(i, $event)"
+            (keydown)="onKeyDown(i, $event)"
+            [class.has-value]="otp[i]"
+            [class.error]="error"
+            autocomplete="one-time-code"
+          />
+        </div>
+
+        <div class="error-message" *ngIf="error">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          {{ error }}
+        </div>
+
+        <button class="btn-primary" (click)="verifyOtp()" >
+          <span *ngIf="!isLoading">Verify and Continue</span>
+          <span *ngIf="isLoading" class="loader"></span>
+        </button>
+
+        <div class="resend-wrap">
+          <span *ngIf="resendTimer > 0" class="resend-text">Resend code in {{ resendTimer }}s</span>
+          <button *ngIf="resendTimer === 0" type="button" class="btn-resend" (click)="resendCode()" [disabled]="isResending">
+            <span *ngIf="!isResending">Resend code</span>
+            <span *ngIf="isResending">Sending...</span>
+          </button>
+        </div>
+
+        <div class="footer-links">
+          <a routerLink="/register">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+            Back to register
+          </a>
+          <a routerLink="/support">Need help?</a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

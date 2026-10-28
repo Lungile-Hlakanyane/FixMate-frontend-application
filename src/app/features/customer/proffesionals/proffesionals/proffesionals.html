@@ -1,0 +1,229 @@
+<app-navbar></app-navbar>
+<div class="pros-page">
+  <div class="page-container">
+
+    <div class="page-header">
+      <div>
+        <h1>Professionals</h1>
+        <p>Verified experts, reviewed by real customers near you.</p>
+      </div>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input type="text" placeholder="Search by name or skill..." [(ngModel)]="searchTerm">
+      </div>
+    </div>
+
+    <div class="filters">
+      <button *ngFor="let s of skills" [class.active]="selectedSkill === s" (click)="selectedSkill = s">
+        {{ s }}
+      </button>
+    </div>
+
+    <div class="results-info">
+      <span><strong>{{ filteredPros.length }}</strong> professionals available</span>
+      <span class="dot"></span>
+      <span class="verified-note">
+        <span class="check">✓</span> Verified Pros Only
+      </span>
+    </div>
+
+    <div class="pros-grid">
+      <div class="pro-card" *ngFor="let pro of filteredPros">
+        
+        <div class="card-top">
+          <div class="avatar-wrap">
+            <div class="avatar">{{ pro.initials }}</div>
+            <span class="status-dot" [class.offline]="!pro.available"></span>
+          </div>
+          <div class="top-info">
+            <div class="name-row">
+              <h3>{{ pro.fullName }}</h3>
+              <span class="verified-badge" *ngIf="pro.verified">
+                <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                Verified
+              </span>
+            </div>
+            <span class="role">{{ pro.role }}</span>
+            <div class="rating-row">
+              <span class="rating">
+                <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+                {{ pro.rating }}
+              </span>
+              <span class="reviews">({{ pro.reviews }} reviews)</span>
+              <span class="dot-sm"></span>
+              <span class="jobs">{{ pro.completedJobs }} jobs done</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-mid">
+          <div class="meta">
+            <svg viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            {{ pro.location }}
+          </div>
+          <div class="meta">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            {{ pro.available ? 'Available Today' : 'Busy' }}
+          </div>
+        </div>
+
+        <div class="skills">
+          <span *ngFor="let skill of pro.occupation">{{ skill }}</span>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn-primary" [disabled]="!pro.available" >{{ pro.available? 'Book Now' : 'Unavailable' }}</button>
+          <button class="btn-ghost">View Details</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOOK NOW MODAL -->
+<div class="modal-overlay" *ngIf="showBookModal" (click)="closeBookModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <div class="pro-head">
+        <div class="avatar-lg">{{ selectedPro?.initials }}</div>
+        <div>
+          <h2>Book {{ selectedPro?.name }}</h2>
+          <p>★ {{ selectedPro?.rating }} • {{ selectedPro?.jobs }} jobs • {{ selectedPro?.distance }}</p>
+        </div>
+      </div>
+      <button class="close-btn" (click)="closeBookModal()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label>Service Needed</label>
+        <select class="input-native" [(ngModel)]="bookingForm.service">
+          <option *ngFor="let s of services" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Your Address</label>
+        <div class="input-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          <input type="text" [(ngModel)]="bookingForm.location">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" class="input-native" [(ngModel)]="bookingForm.date">
+        </div>
+        <div class="form-group">
+          <label>Time Slot</label>
+          <select class="input-native" [(ngModel)]="bookingForm.timeSlot">
+            <option *ngFor="let t of timeSlots" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description <span>optional</span></label>
+        <textarea [(ngModel)]="bookingForm.description" rows="2" placeholder="Brief description of issue..."></textarea>
+      </div>
+
+      <div class="price-summary">
+        <div><span>Hourly Rate</span><strong>R{{ selectedPro?.price }}</strong></div>
+        <div><span>Booking Fee</span><strong>Free</strong></div>
+        <div class="total"><span>Total estimate</span><strong>R{{ selectedPro?.price }} /hr</strong></div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost-lg" (click)="closeBookModal()">Cancel</button>
+      <button class="btn-primary-lg" (click)="submitBooking()" [disabled]="isSubmitting">
+        <span *ngIf="!isSubmitting">Confirm Booking • R{{ selectedPro?.price }}/hr</span>
+        <span *ngIf="isSubmitting" class="loader"></span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- VIEW PROFILE MODAL -->
+<div class="modal-overlay" *ngIf="showProfileModal" (click)="closeProfileModal()">
+  <div class="modal modal-lg profile-modal" (click)="$event.stopPropagation()">
+
+    <div class="profile-cover">
+      <button class="close-btn light" (click)="closeProfileModal()">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <div class="cover-content">
+        <div class="avatar-xl">{{ selectedPro?.initials }}</div>
+        <div class="cover-info">
+          <h2>{{ selectedPro?.name }} <span class="verified" *ngIf="selectedPro?.verified">✓ Verified</span></h2>
+          <p>{{ selectedPro?.role }} • {{ selectedPro?.distance }}</p>
+          <div class="cover-meta">
+            <span class="meta-chip">★ {{ selectedPro?.rating }} ({{ selectedPro?.jobs }})</span>
+            <span class="meta-chip" [class.online]="selectedPro?.available">{{ selectedPro?.available? '• Available now' : '• Offline' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs-row">
+      <button [class.active]="activeProfileTab === 'overview'" (click)="activeProfileTab = 'overview'">Overview</button>
+      <button [class.active]="activeProfileTab === 'reviews'" (click)="activeProfileTab = 'reviews'">Reviews ({{ proDetails.reviews.length }})</button>
+    </div>
+
+    <div class="modal-body" *ngIf="activeProfileTab === 'overview'">
+
+      <div class="detail-block">
+        <span class="d-label">About</span>
+        <p class="about-text">{{ proDetails.about }}</p>
+      </div>
+
+      <div class="detail-block">
+        <span class="d-label">Skills</span>
+        <div class="skill" *ngFor="let skill of proDetails.skills">
+          <div class="skill-head"><span>{{ skill.name }}</span><strong>{{ skill.level }}%</strong></div>
+          <div class="skill-bar"><div class="skill-fill" [style.width.%]="skill.level"></div></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box"><span>{{ proDetails.stats.responseTime }}</span><label>Avg Response</label></div>
+        <div class="stat-box"><span>{{ proDetails.stats.completionRate }}</span><label>Completion</label></div>
+        <div class="stat-box"><span>{{ proDetails.stats.repeatClients }}</span><label>Repeat Clients</label></div>
+      </div>
+    </div>
+
+    <div class="modal-body" *ngIf="activeProfileTab === 'reviews'">
+      <div class="review-card" *ngFor="let rev of proDetails.reviews">
+        <div class="rev-head">
+          <div class="rev-avatar">{{ rev.name[0] }}</div>
+          <div><strong>{{ rev.name }}</strong><span>★ {{ rev.rating }} • {{ rev.date }}</span></div>
+        </div>
+        <p class="rev-text">{{ rev.text }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="price-left"><span>Starting from</span><strong>R{{ selectedPro?.price }}/hr</strong></div>
+      <button class="btn-primary-lg" (click)="bookFromProfile()" [disabled]="!selectedPro?.available">
+        {{ selectedPro?.available? 'Book Now' : 'Currently Unavailable' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+    <div class="empty" *ngIf="filteredPros.length === 0">
+      <div class="empty-box">--</div>
+      <h3>No professionals found</h3>
+      <p>Try different skill or search.</p>
+    </div>
+
+  </div>
+</div>
+<app-footer></app-footer>

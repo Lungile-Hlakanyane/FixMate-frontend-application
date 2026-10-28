@@ -1,0 +1,105 @@
+<app-navbar></app-navbar>
+<div class="jobs-page">
+  <div class="page-head">
+    <div>
+      <h1>Jobs</h1>
+      <p>Monitor and moderate all platform jobs</p>
+    </div>
+    <div class="head-actions">
+      <span class="total-badge">{{ filtered.length }} jobs</span>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><span class="label">Open</span><strong>{{ counts.open }}</strong><span class="dot open"></span></div>
+    <div class="stat"><span class="label">Pending</span><strong>{{ counts.pending }}</strong><span class="dot pending"></span></div>
+    <div class="stat"><span class="label">Confirmed</span><strong>{{ counts.confirmed }}</strong><span class="dot confirmed"></span></div>
+    <div class="stat"><span class="label">Completed</span><strong>{{ counts.completed }}</strong><span class="dot completed"></span></div>
+    <div class="stat"><span class="label">Cancelled</span><strong>{{ counts.cancelled }}</strong><span class="dot cancelled"></span></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="tabs">
+      <button [class.active]="activeTab==='all'" (click)="activeTab='all'">All <span>{{ counts.all }}</span></button>
+      <button [class.active]="activeTab==='open'" (click)="activeTab='open'">Open <span>{{ counts.open }}</span></button>
+      <button [class.active]="activeTab==='pending'" (click)="activeTab='pending'">Pending <span>{{ counts.pending }}</span></button>
+      <button [class.active]="activeTab==='confirmed'" (click)="activeTab='confirmed'">Confirmed <span>{{ counts.confirmed }}</span></button>
+      <button [class.active]="activeTab==='completed'" (click)="activeTab='completed'">Completed <span>{{ counts.completed }}</span></button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search ID, customer, pro..." [(ngModel)]="search" />
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Job ID</th><th>Customer</th><th>Pro</th><th>Service</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let j of filtered">
+            <td class="mono" (click)="openJob(j)">{{ j.id }}</td>
+            <td>{{ j.customer }}</td>
+            <td>{{ j.pro }}</td>
+            <td>{{ j.service }}</td>
+            <td class="bold">R{{ j.amount }}</td>
+            <td><span class="status" [attr.data-status]="j.status">{{ j.status }}</span></td>
+            <td class="muted">{{ j.date }}</td>
+            <td><button class="btn-view" (click)="openJob(j)">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile -->
+    <div class="mobile-list">
+      <div class="m-card" *ngFor="let j of filtered" (click)="openJob(j)">
+        <div class="m-top">
+          <span class="mono">{{ j.id }}</span>
+          <span class="status" [attr.data-status]="j.status">{{ j.status }}</span>
+        </div>
+        <div class="m-title">{{ j.service }} • {{ j.location }}</div>
+        <div class="m-sub">{{ j.customer }} → {{ j.pro }} • R{{ j.amount }}</div>
+        <div class="m-bottom">
+          <span>{{ j.date }}</span>
+          <button class="btn-view">View details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="overlay" *ngIf="showJobModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div>
+          <span class="mono lg">{{ selectedJob?.id }}</span>
+          <h3>{{ selectedJob?.service }}</h3>
+        </div>
+        <button class="close" (click)="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="status-row">
+          <span class="status" [attr.data-status]="selectedJob?.status">{{ selectedJob?.status }}</span>
+          <span class="muted">{{ selectedJob?.date }} • {{ selectedJob?.location }}</span>
+        </div>
+        <p class="desc">{{ selectedJob?.description }}</p>
+        <div class="info-grid">
+          <div><label>Customer</label><strong>{{ selectedJob?.customer }}</strong></div>
+          <div><label>Professional</label><strong>{{ selectedJob?.pro }}</strong></div>
+          <div><label>Amount</label><strong>R{{ selectedJob?.amount }}</strong></div>
+          <div><label>Platform fee</label><strong>R{{ selectedJob?.amount * 0.02 }}</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button *ngIf="selectedJob?.status==='pending'" class="btn-dark" (click)="updateStatus(selectedJob,'confirmed')">Approve</button>
+          <button *ngIf="selectedJob?.status==='open'" class="btn-dark" (click)="updateStatus(selectedJob,'confirmed')">Assign & Confirm</button>
+          <button *ngIf="selectedJob?.status!=='completed' && selectedJob?.status!=='cancelled'" class="btn-light" (click)="updateStatus(selectedJob,'cancelled')">Cancel Job</button>
+          <button *ngIf="selectedJob?.status==='confirmed'" class="btn-light success" (click)="updateStatus(selectedJob,'completed')">Mark Completed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

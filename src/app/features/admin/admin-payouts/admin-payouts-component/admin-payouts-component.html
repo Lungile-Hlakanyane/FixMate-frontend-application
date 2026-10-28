@@ -1,0 +1,122 @@
+<app-navbar></app-navbar>
+<div class="payouts-page">
+  <div class="page-head">
+    <div>
+      <h1>Payouts</h1>
+      <p>Approve and track pro earnings</p>
+    </div>
+    <button class="btn-dark" (click)="approveAllPending()" *ngIf="totals.pendingCount>0">Approve all ({{ totals.pendingCount }})</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat dark">
+      <span class="label">Pending to pay</span>
+      <strong>R{{ totals.pendingAmount | number:'1.0-0' }}</strong>
+      <span class="sub">{{ totals.pendingCount }} requests</span>
+    </div>
+    <div class="stat">
+      <span class="label">Total paid (Sept)</span>
+      <strong>R{{ totals.paidAmount | number:'1.0-0' }}</strong>
+      <span class="sub green">+12% vs Aug</span>
+    </div>
+    <div class="stat">
+      <span class="label">Platform fee (20%)</span>
+      <strong>R{{ (totals.pendingAmount + totals.paidAmount) * 0.20 | number:'1.0-0' }}</strong>
+      <span class="sub">Earned this month</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="tabs">
+      <button [class.active]="activeTab==='all'" (click)="activeTab='all'">All <span>{{ totals.all }}</span></button>
+      <button [class.active]="activeTab==='pending'" (click)="activeTab='pending'">Pending <span>{{ payouts | filterStatus:'pending' }}</span></button>
+      <button [class.active]="activeTab==='paid'" (click)="activeTab='paid'">Paid <span>{{ payouts | filterStatus:'paid' }}</span></button>
+      <button [class.active]="activeTab==='failed'" (click)="activeTab='failed'">Failed <span>{{ payouts | filterStatus:'failed' }}</span></button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search pro, ID, email..." [(ngModel)]="search" />
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Payout ID</th><th>Pro</th><th>Amount</th><th>Net pay</th><th>Jobs</th><th>Method</th><th>Status</th><th>Date</th><th></th></tr></thead>
+        <tbody>
+          <tr *ngFor="let p of filtered">
+            <td class="mono">{{ p.id }}</td>
+            <td>
+              <div class="user-cell">
+                <div class="avatar">{{ p.avatar }}</div>
+                <div><span class="name">{{ p.pro }}</span><span class="email">{{ p.email }}</span></div>
+              </div>
+            </td>
+            <td>R{{ p.amount }}</td>
+            <td class="bold">R{{ p.net }}</td>
+            <td>{{ p.jobs }}</td>
+            <td class="muted">{{ p.method }}</td>
+            <td><span class="status" [attr.data-status]="p.status">{{ p.status }}</span></td>
+            <td class="muted">{{ p.date }}</td>
+            <td>
+              <div class="actions">
+                <button *ngIf="p.status==='pending'" class="btn-sm approve" (click)="openPayout(p)">Approve</button>
+                <button *ngIf="p.status!=='pending'" class="btn-sm ghost" (click)="openPayout(p)">View</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-list">
+      <div class="m-card" *ngFor="let p of filtered" (click)="openPayout(p)">
+        <div class="m-top">
+          <div class="user-cell"><div class="avatar">{{ p.avatar }}</div><div><span class="name">{{ p.pro }}</span><span class="email">{{ p.id }}</span></div></div>
+          <span class="status" [attr.data-status]="p.status">{{ p.status }}</span>
+        </div>
+        <div class="m-amounts">
+          <div><label>Gross</label><strong>R{{ p.amount }}</strong></div>
+          <div><label>Fee</label><span>-R{{ p.fee }}</span></div>
+          <div><label>Net</label><strong class="green">R{{ p.net }}</strong></div>
+        </div>
+        <div class="m-bottom"><span>{{ p.method }} • {{ p.jobs }} jobs</span><span>{{ p.date }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" *ngIf="showPayoutModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div><span class="mono">{{ selectedPayout?.id }}</span><h3>Payout approval</h3></div>
+        <button class="close" (click)="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="user-cell lg">
+          <div class="avatar lg">{{ selectedPayout?.avatar }}</div>
+          <div><span class="name lg">{{ selectedPayout?.pro }}</span><span class="email">{{ selectedPayout?.email }}</span><span class="method">{{ selectedPayout?.method }}</span></div>
+        </div>
+
+        <div class="amount-box">
+          <div class="row"><span>Gross earnings</span><strong>R{{ selectedPayout?.amount }}</strong></div>
+          <div class="row fee"><span>Platform fee (20%)</span><span>-R{{ selectedPayout?.fee }}</span></div>
+          <div class="row net"><span>Net to pay</span><strong>R{{ selectedPayout?.net }}</strong></div>
+        </div>
+
+        <div class="info-grid">
+          <div><label>Jobs included</label><strong>{{ selectedPayout?.jobs }} jobs</strong></div>
+          <div><label>Requested on</label><strong>{{ selectedPayout?.date }}</strong></div>
+          <div><label>Status</label><span class="status" [attr.data-status]="selectedPayout?.status">{{ selectedPayout?.status }}</span></div>
+          <div><label>Payout method</label><strong>{{ selectedPayout?.method }}</strong></div>
+        </div>
+
+        <div class="modal-actions">
+          <button *ngIf="selectedPayout?.status==='pending'" class="btn-dark" (click)="approve(selectedPayout)">Approve & Pay R{{ selectedPayout?.net }}</button>
+          <button *ngIf="selectedPayout?.status==='pending'" class="btn-light danger" (click)="markFailed(selectedPayout); closeModal()">Reject</button>
+          <button *ngIf="selectedPayout?.status!=='pending'" class="btn-light" (click)="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

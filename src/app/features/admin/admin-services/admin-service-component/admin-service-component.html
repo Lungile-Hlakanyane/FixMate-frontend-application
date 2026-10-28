@@ -1,0 +1,103 @@
+<app-navbar></app-navbar>
+<div class="services-page">
+  <div class="page-head">
+    <div>
+      <h1>Services</h1>
+      <p>Manage platform services & pricing</p>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><span class="label">Total services</span><strong>{{ services$ | async}}</strong></div>
+    <div class="stat"><span class="label">Plumbing</span><strong>{{ plumbingServices$ | async }}</strong></div>
+    <div class="stat"><span class="label">Electrical</span><strong>{{ electricalServices$ | async}}</strong></div>
+
+    <div class="stat dark">
+     <span class="label">Most requested</span>
+     <strong>{{ mostRequested.label || '—' }}</strong>
+     <span class="sub">{{ mostRequested.pros }} pros • {{ mostRequested.jobs }} jobs</span>
+    </div>
+
+  </div>
+
+  <div class="toolbar">
+    <div class="tabs">
+     <button *ngFor="let c of categories" [class.active]="activeCategory===c.id" (click)="setCategory(c.id)">{{ c.label }}</button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search services..." [(ngModel)]="search" />
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="service-card" *ngFor="let s of filtered" [class.inactive]="s.status==='inactive'">
+      <div class="card-top">
+        <div class="icon-box">{{ s.icon }}</div>
+        <div class="top-right">
+          <span class="status" [attr.data-status]="s.status">{{ s.status }}</span>
+        </div>
+      </div>
+      <h3>{{ s.name }}</h3>
+      <span class="category">{{ s.category }}</span>
+      <p class="desc">{{ s.description }}</p>
+      <div class="meta">
+        <span><strong>R{{ s.basePrice }} - R{{ s.maxPrice }}</strong></span>
+        <span>{{ s.duration }}</span>
+      </div>
+      <div class="card-footer">
+        <span class="pros">{{ s.pros }} pros</span>
+        <div class="actions">
+          <button class="btn-sm" (click)="toggleStatus(s)">{{ s.status==='active'? 'Disable' : 'Enable' }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty" *ngIf="filtered.length===0">
+    <div class="empty-icon">🔍</div>
+    <h3>No services found</h3>
+    <p>Try different category or search term</p>
+  </div>
+
+  <!-- Modal -->
+  <div class="overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div><h3>{{ isEditing? 'Edit service' : 'Add new service' }}</h3><p>Set pricing and details</p></div>
+        <button class="close" (click)="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field"><label>Service name</label><input type="text" [(ngModel)]="form.name" placeholder="e.g. Leak Repair" /></div>
+          <div class="field"><label>Category</label>
+            <select [(ngModel)]="form.category">
+              <option value="plumbing">Plumbing</option>
+              <option value="electrical">Electrical</option>
+              <option value="painting">Painting</option>
+              <option value="cleaning">Cleaning</option>
+              <option value="carpentry">Carpentry</option>
+            </select>
+          </div>
+          <div class="field"><label>Icon (emoji)</label><input type="text" [(ngModel)]="form.icon" /></div>
+          <div class="field"><label>Duration</label><input type="text" [(ngModel)]="form.duration" placeholder="1-2 hrs" /></div>
+          <div class="field"><label>Base price (R)</label><input type="number" [(ngModel)]="form.basePrice" /></div>
+          <div class="field"><label>Max price (R)</label><input type="number" [(ngModel)]="form.maxPrice" /></div>
+          <div class="field full"><label>Description</label><textarea [(ngModel)]="form.description" rows="3" placeholder="What does this service include?"></textarea></div>
+          <div class="field full"><label>Status</label>
+            <div class="status-toggle">
+              <button [class.active]="form.status==='active'" (click)="form.status='active'">Active</button>
+              <button [class.active]="form.status==='inactive'" (click)="form.status='inactive'">Inactive</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-light" (click)="closeModal()">Cancel</button>
+          <button class="btn-dark" (click)="save()" [disabled]="!form.name">{{ isEditing? 'Save changes' : 'Create service' }}</button>
+        </div>
+        <button *ngIf="isEditing" class="btn-delete" (click)="deleteService(editing); closeModal()">Delete service</button>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

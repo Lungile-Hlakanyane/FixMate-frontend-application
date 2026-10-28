@@ -1,0 +1,101 @@
+<app-navbar></app-navbar>
+<div class="requests-page">
+  <div class="page-head">
+    <div>
+      <h1>Requests</h1>
+      <p>Review customer requests before they become jobs</p>
+    </div>
+    <span class="badge-dark">{{ counts.new }} new requests</span>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat"><span class="label">Total</span><strong>{{ totalRequests$ | async }}</strong><span class="dot new"></span></div>
+    <div class="stat"><span class="label">Approved</span><strong>{{ counts.approved }}</strong><span class="dot approved"></span></div>
+    <div class="stat"><span class="label">Flagged</span><strong>{{ counts.flagged }}</strong><span class="dot flagged"></span></div>
+    <div class="stat"><span class="label">Rejected</span><strong>{{ counts.rejected }}</strong><span class="dot rejected"></span></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="tabs">
+      <button [class.active]="activeTab==='all'" (click)="setTab('all')">All <span>{{ totalRequests$ | async }}</span></button>
+      <button [class.active]="activeTab==='new'" (click)="setTab('new')">New <span>{{ counts.new }}</span></button>
+      <button [class.active]="activeTab==='flagged'" (click)="setTab('flagged')">Flagged <span>{{ counts.flagged }}</span></button>
+      <button [class.active]="activeTab==='approved'" (click)="setTab('approved')">Approved <span>{{ counts.approved }}</span></button>
+      <button [class.active]="activeTab==='rejected'" (click)="setTab('rejected')">Rejected <span>{{ counts.rejected }}</span></button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search ID, customer, service..." [(ngModel)]="search" />
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Request ID</th><th>Customer</th><th>Service</th><th>Location</th><th>Budget</th><th>Urgency</th><th>Status</th><th>Date</th><th></th></tr></thead>
+        <tbody>
+          <tr *ngFor="let r of filtered">
+            <td class="mono">REQ-{{ r.id }}</td>
+            <td>{{ r.customerName }}</td>
+            <td><span class="service-tag">{{ r.title }}</span></td>
+            <td class="muted">{{ r.location }}</td>
+            <td class="bold">R{{ r.budget }}</td>
+            <td><span class="urgency" [attr.data-urgency]="r.urgency">{{ r.urgency }}</span></td>
+            <td><span class="status" [attr.data-status]="r.status">{{ r.status }}</span></td>
+            <td class="muted">{{ r.scheduledDate }}</td>
+            <td><button class="btn-view" (click)="openRequest(r)">Review</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-list">
+      <div class="m-card" *ngFor="let r of filtered" (click)="openRequest(r)">
+        <div class="m-top"><span class="mono">{{ r.id }}</span><span class="status" [attr.data-status]="r.status">{{ r.status }}</span></div>
+        <div class="m-title">{{ r.title }} • {{ r.location }}</div>
+        <div class="m-sub">{{ r.customerName }} • R{{ r.budget }} • <span class="urgency" [attr.data-urgency]="r.urgency">{{ r.urgency }}</span></div>
+        <div class="m-bottom"><span>{{ r.scheduledDate }}</span><button class="btn-view">Review</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div><span class="mono">REQ-{{ selected?.id }}</span><h3>{{ selected?.service }}</h3></div>
+        <button class="close" (click)="closeModal()">X</button>
+      </div>
+      <div class="modal-body">
+        <div class="meta-row">
+          <span class="status" [attr.data-status]="selected?.status">{{ selected?.status }}</span>
+          <span class="urgency" [attr.data-urgency]="selected?.urgency">{{ selected?.urgency }}</span>
+          <span class="muted">{{ selected?.date }}</span>
+        </div>
+        <p class="desc">{{ selected?.description }}</p>
+
+        <div class="info-grid">
+          <div><label>Customer</label><strong>{{ selected?.customerName }}</strong><span class="muted">{{ selected?.email }}</span></div>
+          <div><label>Location</label><strong>{{ selected?.location }}</strong></div>
+          <div><label>Budget</label><strong>R{{ selected?.budget }}</strong></div>
+          <div><label>Category</label><strong>{{ selected?.category }}</strong></div>
+        </div>
+
+        <div class="assign-box" *ngIf="selected?.status==='new' || selected?.status==='flagged'">
+          <label>Assign professional (optional)</label>
+          <select [(ngModel)]="assignProId">
+            <option value="">Select pro...</option>
+            <option *ngFor="let p of pros" [value]="p.id">{{ p.name }} - {{ p.skill }} ({{ p.rating }})</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button class="btn-light" (click)="rejectServiceRequest(selected.id)">Reject</button>
+          <button class="btn-light" (click)="flagServiceRequest(selected.id)">Flag</button>
+          <button *ngIf="!assignProId" class="btn-dark" (click)="approveServiceRequest(selected.id); closeModal()">Approve</button>
+          <button *ngIf="assignProId" class="btn-dark" (click)="assignPro()">Assign & Approve</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

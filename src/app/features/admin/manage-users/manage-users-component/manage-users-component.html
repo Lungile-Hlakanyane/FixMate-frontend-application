@@ -1,0 +1,134 @@
+<app-navbar></app-navbar>
+<div class="users-page">
+  <div class="page-head">
+    <div>
+      <h1>Users</h1>
+      <p>Manage customers and professionals</p>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="label">
+        Total
+      </span>
+      <strong>
+        {{ totalUsers$ | async }}
+      </strong>
+    </div>
+    <div class="stat-card"><span class="label">Customers</span><strong>{{ totalCustomers$ | async}}</strong></div>
+    <div class="stat-card"><span class="label">Pros</span><strong>{{ totalPros$ | async}}</strong></div>
+    <div class="stat-card alert"><span class="label">Pending verification</span><strong>{{ counts.pending }}</strong></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="tabs">
+      <button [class.active]="activeTab==='all'" (click)="activeTab='all'">All <span> {{ totalUsers$ | async }}</span></button>
+      <button [class.active]="activeTab==='customer'" (click)="activeTab='customer'">Customers <span>{{ totalCustomers$ | async}}</span></button>
+      <button [class.active]="activeTab==='pro'" (click)="activeTab='pro'">Pros <span>{{ totalPros$ | async}}</span></button>
+      <button [class.active]="activeTab==='pending'" (click)="activeTab='pending'">Pending <span>{{ counts.pending }}</span></button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search name or email..." [(ngModel)]="search" />
+    </div>
+  </div>
+
+  <!-- Desktop Table -->
+  <div class="card table-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Jobs</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of filteredUsers">
+            <td>
+              <div class="user-cell" (click)="openUser(u)">
+                <div class="avatar" [class.pro]="u.role==='PRO'">{{ u.avatar }}</div>
+                <div>
+                  <span class="name">{{ u.fullName }} <span *ngIf="u.verified" class="verified">✓</span></span>
+                  <span class="email">{{ u.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td><span class="pill" [attr.data-role]="u.role">{{ u.role }}</span></td>
+            <td><span class="status" [attr.data-status]="u.status">{{ u.status }}</span></td>
+            <td class="bold">{{ u.jobs }}</td>
+            <td>{{ u.createdAt }}</td>
+            <td>
+              <div class="actions">
+                <button *ngIf="u.status==='pending'" class="btn-sm approve" (click)="verifyPro(u)">Verify</button>
+                <button (click)="toggleBan(u)" [ngClass]="u.status?.toLowerCase()==='banned'? 'btn-banned':'btn-ban'">
+                  {{u.status?.toLowerCase()==='banned'?'Unban': 'Ban'}}
+                </button>
+                <!-- <button class="btn-sm ghost" (click)="openUser(u)">View</button> -->
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mobile Cards -->
+    <div class="mobile-list">
+      <div class="m-card" *ngFor="let u of filteredUsers">
+        <div class="m-top">
+          <div class="user-cell">
+            <div class="avatar" [class.pro]="u.role==='PRO'">{{ u.avatar }}</div>
+            <div><span class="name">{{ u.fullName }}</span><span class="email">{{ u.email }}</span></div>
+          </div>
+          <span class="status" [attr.data-status]="u.status">{{ u.status }}</span>
+        </div>
+        <div class="m-meta">
+          <span class="pill" [attr.data-role]="u.role">{{ u.role }}</span>
+          <span>{{ u.jobs }} jobs • {{ u.createdAt }}</span>
+        </div>
+        <div class="m-actions">
+          <button *ngIf="u.status==='pending'" class="btn-sm approve" (click)="verifyPro(u)">Verify</button>
+          <button class="btn-sm" (click)="toggleBan(u)">{{ u.status==='banned' ? 'Unban' : 'Ban' }}</button>
+          <!-- <button class="btn-sm ghost" (click)="openUser(u)">View</button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Detail Modal -->
+  <div class="overlay" *ngIf="showUserModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <div class="user-cell">
+          <div class="avatar lg" [class.pro]="selectedUser?.role==='pro'">{{ selectedUser?.avatar }}</div>
+          <div><span class="name lg">{{ selectedUser?.name }}</span><span class="email">{{ selectedUser?.email }}</span></div>
+        </div>
+        <button class="close" (click)="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-grid">
+          <div><label>Role</label><span class="pill" [attr.data-role]="selectedUser?.role">{{ selectedUser?.role }}</span></div>
+          <div><label>Status</label><span class="status" [attr.data-status]="selectedUser?.status">{{ selectedUser?.status }}</span></div>
+          <div><label>Total jobs</label><strong>{{ selectedUser?.jobs }}</strong></div>
+          <div><label>Joined</label><strong>{{ selectedUser?.createdAt }}</strong></div>
+          <div *ngIf="selectedUser?.role==='pro'"><label>Verified</label><strong>{{ selectedUser?.verified ? 'Yes ✓' : 'No' }}</strong></div>
+          <div *ngIf="selectedUser?.rating"><label>Rating</label><strong>⭐ {{ selectedUser?.rating }}</strong></div>
+        </div>
+        <div class="modal-actions">
+          <button *ngIf="selectedUser?.status==='pending'" class="btn-dark" (click)="verifyPro(selectedUser); closeModal()">Verify Pro</button>
+
+
+          <button class="btn-sm" (click)="toggleBan(selectedUser)">{{ selectedUser.status==='banned' ? 'Unban' : 'Ban' }}</button>
+
+
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

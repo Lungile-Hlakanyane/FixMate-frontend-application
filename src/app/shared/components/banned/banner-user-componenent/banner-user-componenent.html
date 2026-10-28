@@ -1,0 +1,71 @@
+<div class="auth-page">
+  <div class="auth-container banned-container">
+
+    <div class="auth-left">
+      <div class="brand">
+        <div class="logo">F</div>
+        <span>FixMate</span>
+      </div>
+      <h1>Access restricted.</h1>
+      <p>Your account status is under review by our trust & safety team.</p>
+
+      <div class="trust">
+        <div class="avatars">
+          <span>T</span><span>S</span><span>J</span>
+        </div>
+        <span>Trusted by 12k+ customers in Joburg</span>
+      </div>
+    </div>
+
+    <div class="auth-right banned-right">
+      <div class="auth-card banned-card">
+
+        <div class="banned-icon-wrap">
+          <div class="banned-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M4.5 4.5l15 15"/></svg>
+          </div>
+          <span class="status-badge">BANNED</span>
+        </div>
+
+        <div class="card-header banned-header">
+          <h2>Your account has been banned</h2>
+          <p>You can no longer log in to FixMate with this account. This action was taken by our admin team.</p>
+        </div>
+
+        <div class="user-chip">
+          <div class="user-avatar">L</div>
+          <div class="user-info">
+            <span class="user-name">Lungile Vincent Hlakanyane</span>
+            <span class="user-email">lungilehlakanyane@gmail.com</span>
+          </div>
+          <div class="chip-status"></div>
+        </div>
+
+        <div class="banned-reasons">
+          <h4>What happens now?</h4>
+          <ul>
+            <li><span></span>You cannot log in, request services, or access chats.</li>
+            <li><span></span>Your existing requests have been put on hold.</li>
+            <li><span></span>Contact support if you believe this is a mistake.</li>
+          </ul>
+        </div>
+
+        <div class="banned-actions">
+          <a class="btn-primary-lg banned-support" href="mailto:support@fixmate.co.za">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 7l8 6 8-6"/></svg>
+            Contact Support
+          </a>
+          <button class="btn-ghost" (click)="navigate('/login')">Back to log in</button>
+        </div>
+
+        <p class="banned-footer">
+          Reference ID: <strong>#USR-3-BANNED</strong> • Blocked on Sep 29, 2026
+        </p>
+
+      </div>
+
+      <p class="safety">Protected by FixMate Secure. If this was a mistake, our team will review within 24h.</p>
+    </div>
+
+  </div>
+</div>
